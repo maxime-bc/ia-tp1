@@ -1,125 +1,174 @@
 import pytest
 
-from main import move, get_white_tile, UP, DOWN, RIGHT, LEFT, copy_board
+from main import move, get_white_tile, UP, DOWN, RIGHT, LEFT, copy_board, h1, h2, h3, BOARD_SIZE
 
 
 def test_get_white_tile():
-    t = [[0, 1, 2],
-         [3, 4, 5],
-         [6, 7, 8]]
-    assert get_white_tile(t) == (0, 0)
+    board = [[0, 1, 2],
+             [3, 4, 5],
+             [6, 7, 8]]
+    assert get_white_tile(board) == (0, 0)
 
 
 def test_get_white_tile_2():
-    t = [[1, 2, 5],
-         [3, 4, 8],
-         [6, 7, 0]]
-    assert get_white_tile(t) == (2, 2)
+    board = [[1, 2, 5],
+             [3, 4, 8],
+             [6, 7, 0]]
+    assert get_white_tile(board) == (2, 2)
 
 
 def test_get_white_tile_no_zero():
-    t = [[1, 1, 2],
-         [3, 4, 5],
-         [6, 7, 8]]
+    board = [[1, 1, 2],
+             [3, 4, 5],
+             [6, 7, 8]]
     with pytest.raises(Exception) as e_info:
-        move(UP, t)
+        move(UP, board)
     assert str(e_info.value) == 'Array does not contains 0.'
 
 
 def test_move_up():
-    t = [[3, 1, 2],
-         [0, 4, 5],
-         [6, 7, 8]]
-    expected_t = [[0, 1, 2],
-                  [3, 4, 5],
-                  [6, 7, 8]]
-    move(UP, t)
-    assert t == expected_t
+    board = [[3, 1, 2],
+             [0, 4, 5],
+             [6, 7, 8]]
+    expected_board = [[0, 1, 2],
+                      [3, 4, 5],
+                      [6, 7, 8]]
+    move(UP, board)
+    assert board == expected_board
 
 
 def test_move_up_borders():
-    t = [[0, 1, 2],
-         [3, 4, 5],
-         [6, 7, 8]]
-    expected_t = [[0, 1, 2],
-                  [3, 4, 5],
-                  [6, 7, 8]]
-    move(UP, t)
-    assert t == expected_t
+    board = [[0, 1, 2],
+             [3, 4, 5],
+             [6, 7, 8]]
+    expected_board = [[0, 1, 2],
+                      [3, 4, 5],
+                      [6, 7, 8]]
+    move(UP, board)
+    assert board == expected_board
 
 
 def test_move_down():
-    t = [[3, 1, 2],
-         [0, 4, 5],
-         [6, 7, 8]]
-    expected_t = [[3, 1, 2],
-                  [6, 4, 5],
-                  [0, 7, 8]]
-    move(DOWN, t)
-    assert t == expected_t
+    board = [[3, 1, 2],
+             [0, 4, 5],
+             [6, 7, 8]]
+    expected_board = [[3, 1, 2],
+                      [6, 4, 5],
+                      [0, 7, 8]]
+    move(DOWN, board)
+    assert board == expected_board
 
 
 def test_move_down_borders():
-    t = [[3, 1, 2],
-         [6, 4, 5],
-         [0, 7, 8]]
-    expected_t = [[3, 1, 2],
-                  [6, 4, 5],
-                  [0, 7, 8]]
-    move(DOWN, t)
-    assert t == expected_t
+    board = [[3, 1, 2],
+             [6, 4, 5],
+             [0, 7, 8]]
+    expected_board = [[3, 1, 2],
+                      [6, 4, 5],
+                      [0, 7, 8]]
+    move(DOWN, board)
+    assert board == expected_board
 
 
 def test_move_right():
-    t = [[0, 1, 2],
-         [3, 4, 5],
-         [6, 7, 8]]
-    expected_t = [[1, 0, 2],
-                  [3, 4, 5],
-                  [6, 7, 8]]
-    move(RIGHT, t)
-    assert t == expected_t
+    board = [[0, 1, 2],
+             [3, 4, 5],
+             [6, 7, 8]]
+    expected_board = [[1, 0, 2],
+                      [3, 4, 5],
+                      [6, 7, 8]]
+    move(RIGHT, board)
+    assert board == expected_board
 
 
 def test_move_right_borders():
-    t = [[1, 2, 0],
-         [3, 4, 5],
-         [6, 7, 8]]
-    expected_t = [[1, 2, 0],
-                  [3, 4, 5],
-                  [6, 7, 8]]
-    move(RIGHT, t)
-    assert t == expected_t
+    board = [[1, 2, 0],
+             [3, 4, 5],
+             [6, 7, 8]]
+    expected_board = [[1, 2, 0],
+                      [3, 4, 5],
+                      [6, 7, 8]]
+    move(RIGHT, board)
+    assert board == expected_board
 
 
 def test_move_left():
-    t = [[1, 2, 0],
-         [3, 4, 5],
-         [6, 7, 8]]
-    expected_t = [[1, 0, 2],
-                  [3, 4, 5],
-                  [6, 7, 8]]
-    move(LEFT, t)
-    assert t == expected_t
+    board = [[1, 2, 0],
+             [3, 4, 5],
+             [6, 7, 8]]
+    expected_board = [[1, 0, 2],
+                      [3, 4, 5],
+                      [6, 7, 8]]
+    move(LEFT, board)
+    assert board == expected_board
 
 
 def test_move_left_borders():
-    t = [[0, 1, 2],
-         [3, 4, 5],
-         [6, 7, 8]]
-    expected_t = [[0, 1, 2],
-                  [3, 4, 5],
-                  [6, 7, 8]]
-    move(LEFT, t)
-    assert t == expected_t
+    board = [[0, 1, 2],
+             [3, 4, 5],
+             [6, 7, 8]]
+    expected_board = [[0, 1, 2],
+                      [3, 4, 5],
+                      [6, 7, 8]]
+    move(LEFT, board)
+    assert board == expected_board
 
 
 def test_copy_board():
-    t = [[0, 1, 2],
-         [3, 4, 5],
-         [6, 7, 8]]
-    expected_t = [[0, 1, 2],
-                  [3, 4, 5],
-                  [6, 7, 8]]
-    assert t is not expected_t
-    assert t == expected_t
+    board = [[0, 1, 2],
+             [3, 4, 5],
+             [6, 7, 8]]
+    expected_board = [[0, 1, 2],
+                      [3, 4, 5],
+                      [6, 7, 8]]
+    assert board is not expected_board
+    assert board == expected_board
+
+
+def test_h1_some_misplaced_tiles():
+    board = [[3, 1, 2],
+             [6, 4, 5],
+             [7, 0, 8]]
+    assert h1(board) == 4
+
+
+def test_h1_no_misplaced_tiles():
+    board = [[0, 1, 2],
+             [3, 4, 5],
+             [6, 7, 8]]
+    assert h1(board) == 0
+
+
+def test_h1_all_misplaced_tiles():
+    board = [[3, 4, 1],
+             [6, 0, 2],
+             [7, 8, 5]]
+    assert h1(board) == 9
+
+
+def test_h2_no_misplaced_tiles():
+    board = [[0, 1, 2],
+             [3, 4, 5],
+             [6, 7, 8]]
+    assert h2(board) == 0
+
+
+def test_h2_misplaced_tiles():
+    board = [[3, 1, 2],
+             [6, 4, 5],
+             [7, 0, 8]]
+    assert h2(board) == 6
+
+
+def test_h3_no_misplaced_tiles():
+    board = [[0, 1, 2],
+             [3, 4, 5],
+             [6, 7, 8]]
+    assert h3(board) == BOARD_SIZE
+
+
+def test_h3_misplaced_tiles():
+    board = [[3, 1, 2],
+             [6, 4, 5],
+             [7, 0, 8]]
+    assert h3(board) == 45  # 6 + 3 * 13

@@ -11,10 +11,11 @@ DOWN = 'DOWN'
 LEFT = 'LEFT'
 RIGHT = 'RIGHT'
 DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
+BOARD_SIZE = 3
 
 
 def print_board(board: List[List[int]]):
-    for i in range(len(board)):
+    for i in range(BOARD_SIZE):
         print(' | '.join(str(s) for s in board[i]))
 
 
@@ -51,15 +52,15 @@ def copy_board(board: List[List[int]]) -> List[List[int]]:
     new_board = [[0, 0, 0],
                  [0, 0, 0],
                  [0, 0, 0]]
-    for i in range(len(board)):
-        for j in range(len(board[i])):
+    for i in range(BOARD_SIZE):
+        for j in range(BOARD_SIZE):
             new_board[i][j] = board[i][j]
     return new_board
 
 
 def get_white_tile(board: List[List[int]]) -> Union[Tuple[int, int], None]:
-    for i in range(len(board)):
-        for j in range(len(board[i])):
+    for i in range(BOARD_SIZE):
+        for j in range(BOARD_SIZE):
             if board[i][j] == 0:
                 return i, j
     raise ValueError('Array does not contains 0.')
@@ -142,11 +143,51 @@ def depth_iterative_search(board: List[List[int]]) -> Tuple[bool, int, int]:
     return found, depth, nodes_visited
 
 
+# Exercise 3
+def h1(board: List[List[int]]) -> int:
+    misplaced = 0
+    for i in range(BOARD_SIZE):
+        for j in range(BOARD_SIZE):
+            if board[i][j] != FINAL_STATE[i][j]:
+                misplaced += 1
+    return misplaced
+
+
+def h2(board: List[List[int]]) -> int:
+    total_distance = 0
+    for i in range(BOARD_SIZE):
+        for j in range(BOARD_SIZE):
+            current_tile = board[i][j]
+            total_distance += abs(i - int(current_tile / BOARD_SIZE) + abs(j - (current_tile % BOARD_SIZE)))
+    return total_distance
+
+
+def h3(board: List[List[int]]) -> int:
+    def _score_sum(b: List[List[int]]) -> int:
+        sn = 0
+        flattened_board = sum(b, [])
+        for i in range(len(flattened_board) - 1):
+            if i == 4:  # central tile
+                if flattened_board[i] != 0:
+                    sn += 1
+            else:
+                if flattened_board[i] + 1 != flattened_board[i + 1]:
+                    sn += 2
+        return sn
+
+    return h2(board) + BOARD_SIZE * _score_sum(board)
+
+
+def a_star(board: List[List[int]], heuristic):
+    pass
+
+
 if __name__ == '__main__':
     # r = generate_random_configuration(n=10)
     r = [[3, 1, 2],
          [6, 4, 5],
          [7, 0, 8]]
-    print(depth_first_search(r))
-    print(depth_first_search_limit(r, 100))
-    print(depth_iterative_search(r))
+    # print(depth_first_search(r))
+    # print(depth_first_search_limit(r, 100))
+    # print(depth_iterative_search(r))
+    print(h3(r))
