@@ -1,5 +1,6 @@
+import heapq
 import random
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Callable
 
 # Exercise 1
 
@@ -144,6 +145,7 @@ def depth_iterative_search(board: List[List[int]]) -> Tuple[bool, int, int]:
 
 
 # Exercise 3
+
 def h1(board: List[List[int]]) -> int:
     misplaced = 0
     for i in range(BOARD_SIZE):
@@ -178,16 +180,30 @@ def h3(board: List[List[int]]) -> int:
     return h2(board) + BOARD_SIZE * _score_sum(board)
 
 
-def a_star(board: List[List[int]], heuristic):
-    pass
+def a_star(board: List[List[int]], heuristic: Callable) -> Tuple[int, int]:
+    p_queue = []
+    heapq.heappush(p_queue, (0, board, 0))
+    saved_costs = {repr(board): 0}
+    nodes_visited = 0
+    depth = 0
 
+    while p_queue:
+        priority, current_board, depth = heapq.heappop(p_queue)
 
-if __name__ == '__main__':
-    # r = generate_random_configuration(n=10)
-    r = [[3, 1, 2],
-         [6, 4, 5],
-         [7, 0, 8]]
-    # print(depth_first_search(r))
-    # print(depth_first_search_limit(r, 100))
-    # print(depth_iterative_search(r))
-    print(h3(r))
+        if current_board == FINAL_STATE:
+            return nodes_visited, depth
+
+        nodes_visited += 1
+
+        for direction in DIRECTIONS:
+            new_cost = saved_costs[repr(current_board)]
+            next_board = copy_board(current_board)
+            move(direction, next_board)
+            next_board_repr = repr(next_board)
+
+            if next_board_repr not in saved_costs or new_cost < saved_costs[next_board_repr]:
+                saved_costs[next_board_repr] = new_cost
+                priority = new_cost + heuristic(next_board)
+                heapq.heappush(p_queue, (priority, next_board, depth + 1))
+
+    return depth, nodes_visited
