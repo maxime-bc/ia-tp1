@@ -59,7 +59,7 @@ def copy_board(board: List[List[int]]) -> List[List[int]]:
     return new_board
 
 
-def get_white_tile(board: List[List[int]]) -> Union[Tuple[int, int], None]:
+def get_white_tile(board: List[List[int]]) -> Tuple[int, int]:
     for i in range(BOARD_SIZE):
         for j in range(BOARD_SIZE):
             if board[i][j] == 0:
@@ -191,7 +191,7 @@ def a_star(board: List[List[int]], heuristic: Callable) -> Tuple[int, int]:
         priority, current_board, depth = heapq.heappop(p_queue)
 
         if current_board == FINAL_STATE:
-            return nodes_visited, depth
+            return depth, nodes_visited
 
         nodes_visited += 1
 
