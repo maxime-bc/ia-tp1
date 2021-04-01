@@ -219,10 +219,10 @@ def a_star(board: List[List[int]], heuristic: Callable) -> Tuple[int, int]:
         nodes_visited += 1
 
         for direction in DIRECTIONS:
-            new_cost = saved_costs[repr(current_board)]
-            next_board = copy_board(current_board)
-
+          
             try:
+                new_cost = saved_costs[repr(current_board)] + 1
+                next_board = copy_board(current_board)
                 move(next_board, direction)
                 next_board_repr = repr(next_board)
 
