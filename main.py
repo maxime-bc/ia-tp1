@@ -1,6 +1,6 @@
 import heapq
 import random
-from typing import Tuple, List, Union, Callable
+from typing import Tuple, List, Callable
 
 # Exercise 1
 
@@ -15,13 +15,17 @@ DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
 BOARD_SIZE = 3
 
 
-def print_board(board: List[List[int]]):
+def print_board(board: List[List[int]]) -> None:
+    to_print = ''
     for i in range(BOARD_SIZE):
-        print(' | '.join(str(s) for s in board[i]))
+        to_print += ' | '.join(str(s) for s in board[i]) + '\n'
+    print(to_print)
 
 
-def move(direction: str, board: List[List[int]]) -> Tuple[int, int]:
+def move(board: List[List[int]], direction: str) -> None:
     i, j = get_white_tile(board)
+    i_tmp = i
+    j_tmp = j
     if direction == UP and i - 1 >= 0:
         board[i][j] = board[i - 1][j]
         board[i - 1][j] = 0
@@ -38,14 +42,22 @@ def move(direction: str, board: List[List[int]]) -> Tuple[int, int]:
         board[i][j] = board[i][j + 1]
         board[i][j + 1] = 0
         j = j + 1
-    return i, j
+
+    if i == i_tmp and j == j_tmp:
+        raise ValueError('Tile 0 could not been moved.')
 
 
-def generate_random_configuration(n: int = 100) -> List[List[int]]:
+def generate_random_configuration(moves: int = 100) -> List[List[int]]:
     random_config = copy_board(FINAL_STATE)
     while random_config == FINAL_STATE:
-        for k in range(n):
-            move(random.choice(DIRECTIONS), random_config)
+        for k in range(moves):
+            moved = False
+            while not moved:
+                try:
+                    move(random_config, random.choice(DIRECTIONS))
+                    moved = True
+                except ValueError:
+                    moved = False
     return random_config
 
 
@@ -69,25 +81,29 @@ def get_white_tile(board: List[List[int]]) -> Tuple[int, int]:
 
 # Exercise 2
 
-def breadth_first_search(board: List[List[int]]) -> Tuple[int, int]:
+def breadth_first_search(board: List[List[int]]) -> Tuple[bool, int, int]:
     queue = [board]
     depth = 0
     nodes_visited = 0
 
-    while queue and not queue[0] == FINAL_STATE:
+    while queue:
         current_board = queue.pop(0)
-        curr_i, curr_y = get_white_tile(current_board)
+
+        if current_board == FINAL_STATE:
+            return True, depth, nodes_visited
 
         for direction in DIRECTIONS:
-            board_copy = copy_board(current_board)
-            new_i, new_y = move(direction, board_copy)
-            if not (new_i == curr_i and new_y == curr_y):
+            try:
+                board_copy = copy_board(current_board)
+                move(board_copy, direction)
                 queue.append(board_copy)
                 nodes_visited += 1
+            except ValueError:
+                pass
 
         depth += 1
 
-    return depth, nodes_visited
+    return False, depth, nodes_visited
 
 
 def depth_first_search(board: List[List[int]]) -> Tuple[bool, int, int]:
@@ -102,12 +118,16 @@ def depth_first_search(board: List[List[int]]) -> Tuple[bool, int, int]:
         seen.append(current_board)
         if current_board == FINAL_STATE:
             return True, depth, nodes_visited
-        else:
-            for direction in DIRECTIONS:
-                board_copy = copy_board(current_board)
-                move(direction, board_copy)
+
+        for direction in DIRECTIONS:
+            board_copy = copy_board(current_board)
+            try:
+                move(board_copy, direction)
                 if board_copy not in seen:
                     stack.append((board_copy, depth + 1))
+            except ValueError:
+                pass
+
     return False, depth, nodes_visited
 
 
@@ -123,13 +143,16 @@ def depth_first_search_limit(board: List[List[int]], limit: int) -> Tuple[bool, 
         seen.append(current_board)
         if current_board == FINAL_STATE:
             return True, depth, nodes_visited
-        else:
-            if depth < limit:
-                for direction in DIRECTIONS:
-                    board_copy = copy_board(current_board)
-                    move(direction, board_copy)
+
+        if depth < limit:
+            for direction in DIRECTIONS:
+                board_copy = copy_board(current_board)
+                try:
+                    move(board_copy, direction)
                     if board_copy not in seen:
                         stack.append((board_copy, depth + 1))
+                except ValueError:
+                    pass
     return False, depth, nodes_visited
 
 
@@ -137,10 +160,10 @@ def depth_iterative_search(board: List[List[int]]) -> Tuple[bool, int, int]:
     found = False
     depth = 0
     nodes_visited = 0
-    limit = 1
+    limit = 0
     while not found:
-        found, depth, nodes_visited = depth_first_search_limit(board, limit)
         limit += 1
+        found, depth, nodes_visited = depth_first_search_limit(board, limit)
     return found, depth, nodes_visited
 
 
@@ -198,12 +221,46 @@ def a_star(board: List[List[int]], heuristic: Callable) -> Tuple[int, int]:
         for direction in DIRECTIONS:
             new_cost = saved_costs[repr(current_board)]
             next_board = copy_board(current_board)
-            move(direction, next_board)
-            next_board_repr = repr(next_board)
 
-            if next_board_repr not in saved_costs or new_cost < saved_costs[next_board_repr]:
-                saved_costs[next_board_repr] = new_cost
-                priority = new_cost + heuristic(next_board)
-                heapq.heappush(p_queue, (priority, next_board, depth + 1))
+            try:
+                move(next_board, direction)
+                next_board_repr = repr(next_board)
+
+                if next_board_repr not in saved_costs or new_cost < saved_costs[next_board_repr]:
+                    saved_costs[next_board_repr] = new_cost
+                    priority = new_cost + heuristic(next_board)
+                    heapq.heappush(p_queue, (priority, next_board, depth + 1))
+            except ValueError:
+                pass
 
     return depth, nodes_visited
+
+
+if __name__ == '__main__':
+    m = 100
+    print(f'Random configuration with {m} moves : ')
+    random_board = generate_random_configuration(moves=m)
+    print_board(random_board)
+
+    # print('Breadth First Search :')
+    # f, d, n = breadth_first_search(random_board)
+    # print(f'Found : {f}\nDepth : {d}\nNodes visited : {n}\n')
+
+    # print('Depth First Search :')
+    # f, d, n = depth_first_search(random_board)
+    # print(f'Found : {f}\nDepth : {d}\nNodes visited : {n}\n')
+
+    # print('Depth First Search with limit :')
+    # f, d, n = depth_first_search_limit(random_board, 100)
+    # print(f'Found : {f}\nDepth : {d}\nNodes visited : {n}\n')
+
+    # print('Depth Iterative Search with limit :')
+    # f, d, n = depth_iterative_search(random_board)
+    # print(f'Found : {f}\nDepth : {d}\nNodes visited : {n}\n')
+
+    heuristics = [h1, h2, h3]
+    for h in heuristics:
+        h_name = getattr(h, '__name__', repr(h))
+        print(f'A* using {h_name} :')
+        d, n = a_star(random_board, h)
+        print(f'Depth : {d}\nNodes visited : {n}\n')
